@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.template.TemplateController">
+    <top>
+        <ToolBar>
+            <Button fx:id="openButton" text="Open CSV" onAction="#handleOpen" />
+            <TextField fx:id="filterField" promptText="Filter by text" onAction="#handleFilter" />
+            <Button text="Apply" onAction="#handleFilter" />
+            <Label fx:id="totalLabel" text="Total: 0" />
+            <Label fx:id="maxSpanLabel" text="Max span: n/a" />
+        </ToolBar>
+    </top>
+    <center>
+        <TableView fx:id="table">
+            <columns>
+                <TableColumn fx:id="primaryCol" text="Primary" prefWidth="150" />
+                <TableColumn fx:id="secondaryCol" text="Secondary" prefWidth="150" />
+                <TableColumn fx:id="metricCol" text="Metric" prefWidth="100" />
+                <TableColumn fx:id="spanDaysCol" text="Span (days)" prefWidth="120" />
+            </columns>
+        </TableView>
+    </center>
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10" />
+    </padding>
+</BorderPane>

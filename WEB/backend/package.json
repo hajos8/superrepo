@@ -1,0 +1,15 @@
+{
+    "name": "backend-template",
+    "version": "1.0.0",
+    "description": "",
+    "type": "commonjs",
+    "main": "express.cjs",
+    "scripts": {
+        "start": "node express.cjs"
+    },
+    "dependencies": {
+        "cors": "^2.8.6",
+        "express": "^5.2.1",
+        "mysql2": "^3.17.2"
+    }
+}
