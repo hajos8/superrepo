@@ -16,10 +16,10 @@ import java.util.Map;
 
 public class GeneratorNew {
     public static void main(String[] args) {
-        String csvPath = "xxx.csv"; //csv fájl neve (madarak.csv)
+        String csvPath = "xxx.csv"; // csv fájl neve (madarak.csv)
         String delimiter = ";"; // ; vagy ,
-        String className = "Xxx"; //osztály neve (Madar.java)
-        String packageName = "main"; //package ami legfelül van a mainbe (main)
+        String className = "Xxx"; // osztály neve (Madar.java)
+        String packageName = "main"; // package ami legfelül van a mainbe (main)
 
         try {
             List<String> lines = readAll(csvPath);
@@ -181,7 +181,7 @@ public class GeneratorNew {
     }
 
     private static void writeDataClass(String packageName, String className, ArrayList<String> headers,
-                                       Map<String, FieldType> types) throws Exception {
+            Map<String, FieldType> types) throws Exception {
         try (FileWriter writer = new FileWriter(className + ".java")) {
             StringBuilder b = new StringBuilder();
             if (!packageName.isEmpty())
@@ -244,7 +244,7 @@ public class GeneratorNew {
     }
 
     private static void writeParser(String packageName, String className, ArrayList<String> headers,
-                                    Map<String, FieldType> types, String delimiter) throws Exception {
+            Map<String, FieldType> types, String delimiter) throws Exception {
         try (FileWriter writer = new FileWriter("CSVParser.java")) {
             StringBuilder b = new StringBuilder();
             if (!packageName.isEmpty())
@@ -261,24 +261,36 @@ public class GeneratorNew {
             b.append("\n");
 
             b.append("public class CSVParser {\n");
-            b.append("    public static List<").append(className).append("> parse(String filename) {\n");
+            b.append("    public static ArrayList<").append(className).append("> parse(String filename) {\n");
             b.append("        ArrayList<").append(className).append("> list = new ArrayList<>();\n");
             b.append("        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {\n");
             b.append("            String line;\n");
             b.append("            br.readLine(); // skip header\n");
             b.append("            while ((line = br.readLine()) != null) {\n");
             b.append("                String[] parts = line.split(\"").append(delimiter).append("\");\n");
-            b.append("                if (parts.length < ").append(headers.size()).append(") continue;\n");
-            b.append("                ").append(className).append(" rec = new ").append(className).append("(");
+            b.append("\n");
             for (int i = 0; i < headers.size(); i++) {
                 String h = headers.get(i);
                 FieldType t = types.get(h);
-                String expr = parseExpression(t, "parts[" + i + "]");
-                b.append(expr);
-                if (i < headers.size() - 1)
-                    b.append(", ");
+                String partVar = "part" + i;
+                String valueVar = h + "Value";
+                b.append("                String ").append(partVar)
+                        .append(" = ")
+                        .append("parts.length > ").append(i).append(" ? parts[")
+                        .append(i).append("] : \"\";\n");
+                b.append("                ").append(t.getTypeName()).append(" ").append(valueVar).append(" = ")
+                        .append(parseExpression(t, partVar)).append(";\n");
             }
-            b.append(");\n");
+            b.append("                ").append(className).append(" rec = new ").append(className).append("(\n");
+            for (int i = 0; i < headers.size(); i++) {
+                String h = headers.get(i) + "Value";
+                b.append("                        ").append(h);
+                if (i < headers.size() - 1)
+                    b.append(",\n");
+                else
+                    b.append("\n");
+            }
+            b.append("                );\n");
             b.append("                list.add(rec);\n");
             b.append("            }\n");
             b.append("        } catch (Exception e) { System.out.println(\"Parse error: \" + e.getMessage()); }\n");
@@ -291,14 +303,19 @@ public class GeneratorNew {
     }
 
     private static String parseExpression(FieldType type, String variable) {
-        String v = variable + ".trim()";
         return switch (type) {
-            case INTEGER -> "Integer.parseInt(" + v + ")";
-            case DOUBLE -> "Double.parseDouble(" + v + ")";
-            case BOOLEAN -> "Boolean.parseBoolean(" + v + ")";
-            case LOCAL_DATE -> "LocalDate.parse(" + v + ".replace(\" \", \"\"))";
-            case LOCAL_DATE_TIME -> "LocalDateTime.parse(" + v + ".replace(\" \", \"\"))";
-            case STRING -> v;
+            case INTEGER ->
+                variable + " == null || " + variable + ".isEmpty() ? null : Integer.parseInt(" + variable + ")";
+            case DOUBLE ->
+                variable + " == null || " + variable + ".isEmpty() ? null : Double.parseDouble(" + variable + ")";
+            case BOOLEAN ->
+                variable + " == null || " + variable + ".isEmpty() ? null : Boolean.parseBoolean(" + variable + ")";
+            case LOCAL_DATE -> variable + " == null || " + variable + ".isEmpty() ? null : LocalDate.parse(" + variable
+                    + ".replace(\" \", \"\"))";
+            case LOCAL_DATE_TIME ->
+                variable + " == null || " + variable + ".isEmpty() ? null : LocalDateTime.parse(" + variable
+                        + ".replace(\" \", \"\"))";
+            case STRING -> variable + " == null || " + variable + ".isEmpty() ? null : " + variable;
         };
     }
 }
