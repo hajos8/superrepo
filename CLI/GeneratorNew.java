@@ -1,5 +1,3 @@
-package main;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -261,6 +259,7 @@ public class GeneratorNew {
             b.append("\n");
 
             b.append("public class CSVParser {\n");
+            b.append("    public static ArrayList<").append(className).append("> parse(String filename) {\n");
             b.append("    public static ArrayList<").append(className).append("> parse(String filename) {\n");
             b.append("        ArrayList<").append(className).append("> list = new ArrayList<>();\n");
             b.append("        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {\n");
