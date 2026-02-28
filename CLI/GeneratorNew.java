@@ -14,9 +14,9 @@ import java.util.Map;
 
 public class GeneratorNew {
     public static void main(String[] args) {
-        String csvPath = "xxx.csv"; // csv fájl neve (madarak.csv)
-        String delimiter = ";"; // ; vagy ,
-        String className = "Xxx"; // osztály neve (Madar.java)
+        String csvPath = "stolen.csv"; // csv fájl neve (madarak.csv)
+        String delimiter = ","; // ; vagy ,
+        String className = "Stolen"; // osztály neve (Madar.java)
         String packageName = "main"; // package ami legfelül van a mainbe (main)
 
         try {
@@ -259,7 +259,6 @@ public class GeneratorNew {
             b.append("\n");
 
             b.append("public class CSVParser {\n");
-            b.append("    public static ArrayList<").append(className).append("> parse(String filename) {\n");
             b.append("    public static ArrayList<").append(className).append("> parse(String filename) {\n");
             b.append("        ArrayList<").append(className).append("> list = new ArrayList<>();\n");
             b.append("        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {\n");

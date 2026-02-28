@@ -1,0 +1,1 @@
+pnpm add react-router-dom @mui/icons-material @mui/material @emotion/styled @emotion/react
