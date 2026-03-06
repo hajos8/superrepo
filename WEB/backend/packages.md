@@ -1,0 +1,1 @@
+pnpm i express, mysql2, cors

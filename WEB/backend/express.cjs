@@ -15,28 +15,58 @@ const connection = mysql.createConnection({
 app.use(cors());
 app.use(express.json());
 
-// Generic placeholder GET endpoint
-app.get('/api/placeholder', (req, res) => {
-    const sql = `SELECT column_list FROM some_table WHERE id = ?;`; // skeleton only
-    res.status(501).json({ message: 'TODO: implement /api/placeholder', sql, params: ['id'] });
+app.get('/api/', (req, res) => {
+    const sql = `
+
+    `;
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.status(200).json(results);
+    });
+
 });
 
-// Generic placeholder POST endpoint
-app.post('/api/placeholder', (req, res) => {
-    const sql = `INSERT INTO some_table (col1, col2) VALUES (?, ?);`; // skeleton only
-    res.status(501).json({ message: 'TODO: implement POST /api/placeholder', sql, params: ['col1', 'col2'] });
+
+app.post('/api/', (req, res) => {
+    const sql = `
+
+    `;
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.status(200).json(results);
+    });
 });
 
-// Generic placeholder PATCH endpoint
-app.patch('/api/placeholder', (req, res) => {
-    const sql = `UPDATE some_table SET col1 = ? WHERE id = ?;`; // skeleton only
-    res.status(501).json({ message: 'TODO: implement PATCH /api/placeholder', sql, params: ['col1', 'id'] });
+app.patch('/api/', (req, res) => {
+    const sql = `
+
+    `;
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.status(200).json(results);
+    });
 });
 
-// Generic placeholder DELETE endpoint
-app.delete('/api/placeholder', (req, res) => {
-    const sql = `DELETE FROM some_table WHERE id = ?;`; // skeleton only
-    res.status(501).json({ message: 'TODO: implement DELETE /api/placeholder', sql, params: ['id'] });
+app.delete('/api/', (req, res) => {
+    const sql = `
+
+    `;
+    connection.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+        res.status(200).json(results);
+    });
 });
 
 app.use((req, res) => {

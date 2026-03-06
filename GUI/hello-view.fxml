@@ -36,11 +36,11 @@
         <items>
             <VBox maxWidth="200.0" minHeight="300.0" minWidth="200.0" prefWidth="200.0">
                <children>
-                  <ListView maxWidth="200.0" minHeight="300.0" minWidth="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="leftListView" maxWidth="200.0" minHeight="300.0" minWidth="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                </children></VBox>
             <VBox prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <ListView minHeight="300.0" minWidth="400.0" VBox.vgrow="ALWAYS" />
+                  <ListView fx:id="rightListView" minHeight="300.0" minWidth="400.0" VBox.vgrow="ALWAYS" />
                </children></VBox>
         </items>
       </SplitPane>

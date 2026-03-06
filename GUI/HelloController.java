@@ -9,13 +9,18 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 public class HelloController {
-    //public static ArrayList<TODO> lista = new ArrayList<>();
+    // public static ArrayList<TODO> lista = new ArrayList<>();
 
-    @FXML public BorderPane container;
+    @FXML
+    public BorderPane container;
+    @FXML
+    public List<String> leftListView, rightListView;
 
-    @FXML public void fileOpener() {
+    @FXML
+    public void fileOpener() {
         Stage currentStage = (Stage) container.getScene().getWindow();
 
         try {
@@ -25,20 +30,20 @@ public class HelloController {
             File selectedFile = fileChooser.showOpenDialog(currentStage);
 
             if (selectedFile != null) {
-                //lista = CSVParser.parse(selectedFile.getPath());
+                // lista = CSVParser.parse(selectedFile.getPath());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e);
         }
     }
 
-    @FXML public void exitPlatform () {
+    @FXML
+    public void exitPlatform() {
         Platform.exit();
     }
 
-
-    @FXML public void handleAbout () {
+    @FXML
+    public void handleAbout() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Névjegy");
         alert.setHeaderText("");

@@ -5,12 +5,17 @@ import Home from './Home.jsx'
 import TODO from './TODO.jsx'
 import SearchResult from './SearchResult.jsx'
 
+import MyMenu from './MyMenu.jsx';
+
 function App() {
 
   return (
     <>
 
       <BrowserRouter>
+
+        <MyMenu />
+
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/todo/:id" element={<TODO />} />

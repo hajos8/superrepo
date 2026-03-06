@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardMedia, Container, Stack } from '@mui/material';
+import { Card, CardContent, CardHeader, CardMedia, Container, Stack, Typography } from '@mui/material';
 import { useState, useEffect } from 'react';
-import MyMenu from './MyMenu.jsx';
 
 export default function Home() {
     const [TODO, setTODO] = useState([]);
@@ -20,7 +19,6 @@ export default function Home() {
 
     return (
         <>
-            <MyMenu />
             <Container>
                 <Stack spacing={2}>
                     {TODO.map((item, index) => {
@@ -31,6 +29,10 @@ export default function Home() {
                                     {/* image */}
                                 </CardMedia>
                                 <CardContent>
+                                    <Typography variant="body2" color="blue"> {/* h1, h2... body1, body2 */}
+                                        {/* description */}
+                                    </Typography>
+
                                     {/* content */}
                                     {JSON.stringify(item)} {/* itt láthatód az item objektumot */}
                                 </CardContent>
