@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Path;
@@ -14,10 +13,15 @@ import java.util.Map;
 
 public class GeneratorNew {
     public static void main(String[] args) {
-        String csvPath = "stolen.csv"; // csv fájl neve (madarak.csv)
-        String delimiter = ","; // ; vagy ,
-        String className = "Stolen"; // osztály neve (Madar.java)
-        String packageName = "main"; // package ami legfelül van a mainbe (main)
+        String csvPath = args.length > 0 ? args[0] : "exhibitions.csv";
+        String delimiter = args.length > 1 ? args[1] : ",";
+        String packageName = args.length > 2 ? args[2] : "main";
+        String className = args.length > 3 ? args[3] : deriveClassName(csvPath);
+
+        if (delimiter == null || delimiter.isEmpty()) {
+            System.out.println("Delimiter cannot be empty.");
+            return;
+        }
 
         try {
             List<String> lines = readAll(csvPath);
@@ -27,7 +31,7 @@ public class GeneratorNew {
             }
 
             String headerLine = lines.get(0);
-            String[] headersArray = headerLine.split(delimiter);
+            String[] headersArray = parseCsvLine(headerLine, delimiter.charAt(0));
             ArrayList<String> headers = normalizeHeaders(headersArray);
 
             List<String[]> rows = parseRows(lines, delimiter, true);
@@ -57,10 +61,38 @@ public class GeneratorNew {
     private static List<String[]> parseRows(List<String> lines, String delimiter, boolean hasHeader) {
         ArrayList<String[]> rows = new ArrayList<>();
         int start = hasHeader ? 1 : 0;
+        char delimiterChar = delimiter.charAt(0);
         for (int i = start; i < lines.size(); i++) {
-            rows.add(lines.get(i).split(delimiter));
+            rows.add(parseCsvLine(lines.get(i), delimiterChar));
         }
         return rows;
+    }
+
+    private static String[] parseCsvLine(String line, char delimiter) {
+        ArrayList<String> values = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                // Double quote inside quoted text means escaped quote.
+                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                    current.append('"');
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (c == delimiter && !inQuotes) {
+                values.add(current.toString().trim());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+
+        values.add(current.toString().trim());
+        return values.toArray(new String[0]);
     }
 
     private static String deriveClassName(String path) {
@@ -245,6 +277,7 @@ public class GeneratorNew {
             Map<String, FieldType> types, String delimiter) throws Exception {
         try (FileWriter writer = new FileWriter("CSVParser.java")) {
             StringBuilder b = new StringBuilder();
+            String delimiterLiteral = toJavaCharLiteral(delimiter.charAt(0));
             if (!packageName.isEmpty())
                 b.append("package ").append(packageName).append(";\n\n");
 
@@ -265,7 +298,7 @@ public class GeneratorNew {
             b.append("            String line;\n");
             b.append("            br.readLine(); // skip header\n");
             b.append("            while ((line = br.readLine()) != null) {\n");
-            b.append("                String[] parts = line.split(\"").append(delimiter).append("\");\n");
+            b.append("                String[] parts = parseCsvLine(line, ").append(delimiterLiteral).append(");\n");
             b.append("\n");
             for (int i = 0; i < headers.size(); i++) {
                 String h = headers.get(i);
@@ -294,6 +327,32 @@ public class GeneratorNew {
             b.append("        } catch (Exception e) { System.out.println(\"Parse error: \" + e.getMessage()); }\n");
             b.append("        return list;\n");
             b.append("    }\n");
+            b.append("\n");
+            b.append("    private static String[] parseCsvLine(String line, char delimiter) {\n");
+            b.append("        ArrayList<String> values = new ArrayList<>();\n");
+            b.append("        StringBuilder current = new StringBuilder();\n");
+            b.append("        boolean inQuotes = false;\n");
+            b.append("\n");
+            b.append("        for (int i = 0; i < line.length(); i++) {\n");
+            b.append("            char c = line.charAt(i);\n");
+            b.append("            if (c == '\"') {\n");
+            b.append("                if (inQuotes && i + 1 < line.length() && line.charAt(i + 1) == '\"') {\n");
+            b.append("                    current.append('\"');\n");
+            b.append("                    i++;\n");
+            b.append("                } else {\n");
+            b.append("                    inQuotes = !inQuotes;\n");
+            b.append("                }\n");
+            b.append("            } else if (c == delimiter && !inQuotes) {\n");
+            b.append("                values.add(current.toString().trim());\n");
+            b.append("                current.setLength(0);\n");
+            b.append("            } else {\n");
+            b.append("                current.append(c);\n");
+            b.append("            }\n");
+            b.append("        }\n");
+            b.append("\n");
+            b.append("        values.add(current.toString().trim());\n");
+            b.append("        return values.toArray(new String[0]);\n");
+            b.append("    }\n");
             b.append("}\n");
 
             writer.write(b.toString());
@@ -303,17 +362,28 @@ public class GeneratorNew {
     private static String parseExpression(FieldType type, String variable) {
         return switch (type) {
             case INTEGER ->
-                variable + " == null || " + variable + ".isEmpty() ? null : Integer.parseInt(" + variable + ")";
+                variable + " == null || " + variable + ".isEmpty() ? null : Integer.parseInt(" + variable + ".trim())";
             case DOUBLE ->
-                variable + " == null || " + variable + ".isEmpty() ? null : Double.parseDouble(" + variable + ")";
+                variable + " == null || " + variable + ".isEmpty() ? null : Double.parseDouble(" + variable + ".trim())";
             case BOOLEAN ->
-                variable + " == null || " + variable + ".isEmpty() ? null : Boolean.parseBoolean(" + variable + ")";
+                variable + " == null || " + variable + ".isEmpty() ? null : Boolean.parseBoolean(" + variable + ".trim())";
             case LOCAL_DATE -> variable + " == null || " + variable + ".isEmpty() ? null : LocalDate.parse(" + variable
                     + ".replace(\" \", \"\"))";
             case LOCAL_DATE_TIME ->
                 variable + " == null || " + variable + ".isEmpty() ? null : LocalDateTime.parse(" + variable
                         + ".replace(\" \", \"\"))";
             case STRING -> variable + " == null || " + variable + ".isEmpty() ? null : " + variable;
+        };
+    }
+
+    private static String toJavaCharLiteral(char c) {
+        return switch (c) {
+            case '\\' -> "'\\\\'";
+            case '\'' -> "'\\\''";
+            case '\n' -> "'\\n'";
+            case '\r' -> "'\\r'";
+            case '\t' -> "'\\t'";
+            default -> "'" + c + "'";
         };
     }
 }

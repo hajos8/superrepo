@@ -1,1 +1,1 @@
-pnpm i express, mysql2, cors
+pnpm i express mysql2 cors
